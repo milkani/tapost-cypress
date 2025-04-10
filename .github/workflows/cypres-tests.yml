@@ -1,0 +1,69 @@
+name: Cypress Tests
+
+# Trigger the workflow on push or pull request events
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Set up Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # Adjust to your Node.js version
+
+      # Install dependencies
+      - name: Install Dependencies
+        run: npm ci
+
+      # Install Cypress and reporting tools (if not in package.json)
+      - name: Install Cypress and Reporters
+        run: |
+          npm install cypress --save-dev
+          npm install mochawesome --save-dev
+
+      # Run Cypress tests using the existing script
+      - name: Run Cypress Tests
+        run: npm run run:second:test
+
+      # Upload Mochawesome HTML report as an artifact
+      - name: Upload Mochawesome Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mochawesome-test-report
+          path: cypress/reports/html/
+
+      #      # Upload JUnit merged report as an artifact
+      #      - name: Upload JUnit Report
+      #        if: always()
+      #        uses: actions/upload-artifact@v4
+      #        with:
+      #          name: junit-test-report
+      #          path: cypress/results/junit/merged-results.xml
+
+      # Upload screenshots on failure (optional)
+      - name: Upload Screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+
+#      - name: Netlify upload
+#        if: always()
+#        run : |
+#          npm install -g netlify-cli
+#          netlify deploy --prod --dir=cypress/reports/html --site=${{ secrets.NETLIFY_SITE_ID }} --auth=${{ secrets.NETLIFY_AUTH_TOKEN }}
