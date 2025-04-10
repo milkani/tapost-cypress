@@ -1,5 +1,4 @@
 name: Cypress Tests
-
 # Trigger the workflow on push or pull request events
 on:
   push:
@@ -28,7 +27,7 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      # Install Cypress and reporting tools (if not in package.json)
+      # Install Cypress and reporting tools (if not in package.jsons)
       - name: Install Cypress and Reporters
         run: |
           npm install cypress --save-dev
